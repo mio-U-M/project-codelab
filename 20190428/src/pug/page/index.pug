@@ -1,0 +1,13 @@
+extends /layout/_default-layout
+
+prepend config-block
+  - page_name = ''
+
+//- append stylesheet-block
+
+//- append javascript-block
+
+block content-block
+  main.frame.js-frame.mv
+    - for (var x = 0; x < 20; x++)
+      .rectangle.js-rectangle.dot

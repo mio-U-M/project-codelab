@@ -1,0 +1,24 @@
+extends /layout/_default-layout
+
+prepend config-block
+  - page_name = ''
+
+//- append stylesheet-block
+
+//- append javascript-block
+
+block content-block
+  main.frame
+    section#animation.section-common
+      each item in wordList
+        .text.js-text!=item
+      .js-insert
+    section#input.section-common
+      p.input-explain
+      input.input-form(type="text")
+      button.js-translate Spit Out!
+    section#loading.section-common
+      div.loader
+      p Loading...
+
+    

@@ -1,0 +1,19 @@
+extends /layout/_default-layout
+
+prepend config-block
+  - page_name = ''
+
+//- append stylesheet-block
+
+//- append javascript-block
+
+block content-block
+  main.frame
+    //- .circle.js-circle
+    //- .smallcircle.js-smallcircle
+    -
+      const txt = "Only one person in the world thinks of you from the bottom of his heart.  It is you.";
+      const wordList = txt.split(' ');
+    -
+    each item in wordList
+      .text.js-text!=item
