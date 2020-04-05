@@ -15,6 +15,9 @@ export default class ShaderManager {
         this.mesh = null;
 
         this.uniforms = null;
+
+        // animation
+        this.isBlurActive = false;
     }
 
     init() {
@@ -22,6 +25,14 @@ export default class ShaderManager {
         this.resize();
 
         gsap.ticker.add(time => {
+            if (this.isBlurActive && this.uniforms.uBlurOpacity.value > 0.3) {
+                this.uniforms.uBlurOpacity.value -= 0.05;
+            }
+            if (!this.isBlurActive && this.uniforms.uBlurOpacity.value < 1.0) {
+                console.log(this.uniforms.uBlurOpacity.value);
+                this.uniforms.uBlurOpacity.value += 0.05;
+            }
+
             this.uniforms.uTime.value = time;
             this.renderer.render(this.scene, this.camera);
         });
@@ -43,7 +54,7 @@ export default class ShaderManager {
                 value: new THREE.TextureLoader().load(TEXTURE_1)
             },
             // blur
-            uBlurVar: { value: false }
+            uBlurOpacity: { type: "f", value: 1.0 }
         };
         const material = new THREE.RawShaderMaterial({
             uniforms: this.uniforms,
@@ -68,6 +79,6 @@ export default class ShaderManager {
     }
 
     changeView() {
-        this.uniforms.uBlurVar.value = !this.uniforms.uBlurVar.value;
+        this.isBlurActive = !this.isBlurActive;
     }
 }

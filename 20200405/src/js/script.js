@@ -6,7 +6,6 @@ const manager = new ShaderManager(view);
 
 manager.init();
 
-btn,
-    addEventListener("click", () => {
-        manager.changeView();
-    });
+btn.addEventListener("click", () => {
+    manager.changeView();
+});
