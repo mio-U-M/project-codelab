@@ -37,19 +37,19 @@ export default class ShaderManager {
 
         gsap.ticker.add(time => {
             // btn: change view
-            if (this.isBlurActive) {
-                if (!this.menuMode && this.uniforms.uImageBlend.value > 0) {
-                    this.uniforms.uImageBlend.value -= 0.05;
-                }
+            // if (this.isBlurActive) {
+            //     if (!this.menuMode && this.uniforms.uImageBlend.value > 0) {
+            //         this.uniforms.uImageBlend.value -= 0.02;
+            //     }
 
-                if (this.menuMode && this.uniforms.uImageBlend.value < 1.0) {
-                    this.uniforms.uImageBlend.value += 0.05;
-                }
-            } else {
-                if (this.uniforms.uImageBlend.value < 1.0) {
-                    this.uniforms.uImageBlend.value += 0.05;
-                }
-            }
+            //     if (this.menuMode && this.uniforms.uImageBlend.value < 1.0) {
+            //         this.uniforms.uImageBlend.value += 0.02;
+            //     }
+            // } else {
+            //     if (this.uniforms.uImageBlend.value < 1.0) {
+            //         this.uniforms.uImageBlend.value += 0.02;
+            //     }
+            // }
 
             this.uniforms.uTime.value = time;
             this.renderer.render(this.scene, this.camera);
@@ -80,7 +80,9 @@ export default class ShaderManager {
                 value: this.texture.mainBlur
             },
             // image blend
-            uImageBlend: { type: "f", value: 1.0 }
+            uImageBlend: { type: "f", value: 1.0 },
+            // wave animation
+            uWaveImpact: { type: "f", value: 0.0 }
         };
 
         const material = new THREE.RawShaderMaterial({
@@ -115,29 +117,29 @@ export default class ShaderManager {
         this.isBlurActive = !this.isBlurActive;
 
         if (this.isBlurActive) {
-            // menu
-            gsap.set(".js-menu", { pointerEvents: "auto" });
-            gsap.to(".js-menu", 0.5, { opacity: 1, ease: "sine.out" });
+            this.animateMenu(true);
+            this.animateImageBlend("down");
         } else {
-            gsap.set(".js-menu", { pointerEvents: "none" });
-            gsap.to(".js-menu", 0.5, {
-                opacity: 0,
-                ease: "sine.out",
-                onStart: () => {
-                    this.initMainImage();
-                    this.initSubImage();
-                }
-            });
+            this.initMainImage();
+            this.initSubImage();
+            this.animateMenu(false);
+            this.animateImageBlend("up");
         }
+
+        this.animateWave();
     }
 
     changeMenuMode(id) {
         this.menuMode = id;
         this.setMainImage(id);
+        this.animateImageBlend("up");
+        this.animateWave(0.5);
     }
 
     clearMenuMode() {
         this.menuMode = null;
+        this.animateImageBlend("down");
+        this.animateWave(0.5);
     }
 
     setMainImage(id) {
@@ -150,5 +152,56 @@ export default class ShaderManager {
 
     initSubImage() {
         this.uniforms.uTexture2.value = this.texture.mainBlur;
+    }
+
+    // animation
+    animateImageBlend(direction) {
+        switch (direction) {
+            case "up":
+                gsap.to(this.uniforms.uImageBlend, 0.6, {
+                    value: 1.0,
+                    ease: "sine.out"
+                });
+                break;
+            case "down":
+                gsap.to(this.uniforms.uImageBlend, 0.6, {
+                    value: 0.0,
+                    ease: "sine.out"
+                });
+                break;
+            default:
+                break;
+        }
+    }
+
+    animateMenu(isShow) {
+        if (isShow) {
+            gsap.set(".js-menu", { pointerEvents: "auto" });
+            gsap.to(".js-menu", 0.5, {
+                opacity: 1,
+                ease: "sine.out",
+                delay: 0.3
+            });
+        } else {
+            gsap.set(".js-menu", { pointerEvents: "none" });
+            gsap.to(".js-menu", 0.5, {
+                opacity: 0,
+                ease: "sine.out",
+                delay: 0.3
+            });
+        }
+    }
+
+    animateWave(time = 0.6) {
+        if (this.waveTl) this.waveTl.kill();
+        this.waveTl = gsap.timeline();
+        this.waveTl.to(this.uniforms.uWaveImpact, time / 2, {
+            value: 1.0,
+            ease: "sine.out"
+        });
+        this.waveTl.to(this.uniforms.uWaveImpact, time / 2, {
+            value: 0.0,
+            ease: "sine.out"
+        });
     }
 }

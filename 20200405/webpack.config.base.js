@@ -91,12 +91,8 @@ module.exports = {
                 loader: "js-yaml-loader"
             },
             {
-                test: /\.(frag|vert|glsl)$/,
-                use: [
-                    {
-                        loader: "glsl-shader-loader"
-                    }
-                ]
+                test: /\.(glsl|vs|fs|vert|frag)$/,
+                use: ["glsl-shader-loader", "glslify-loader"]
             }
         ]
     },
