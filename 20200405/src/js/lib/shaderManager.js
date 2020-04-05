@@ -26,22 +26,29 @@ export default class ShaderManager {
         this.texture = {};
         this.uniforms = null;
 
-        // animation
+        // change
         this.isBlurActive = false;
+        this.menuMode = null;
     }
 
     init() {
         this.setupWebgl();
         this.resize();
 
-        console.log(this.texture);
-
         gsap.ticker.add(time => {
-            if (this.isBlurActive && this.uniforms.uMainOpacity.value > 0) {
-                this.uniforms.uMainOpacity.value -= 0.05;
-            }
-            if (!this.isBlurActive && this.uniforms.uMainOpacity.value < 1.0) {
-                this.uniforms.uMainOpacity.value += 0.05;
+            // btn: change view
+            if (this.isBlurActive) {
+                if (!this.menuMode && this.uniforms.uImageBlend.value > 0) {
+                    this.uniforms.uImageBlend.value -= 0.05;
+                }
+
+                if (this.menuMode && this.uniforms.uImageBlend.value < 1.0) {
+                    this.uniforms.uImageBlend.value += 0.05;
+                }
+            } else {
+                if (this.uniforms.uImageBlend.value < 1.0) {
+                    this.uniforms.uImageBlend.value += 0.05;
+                }
             }
 
             this.uniforms.uTime.value = time;
@@ -68,12 +75,12 @@ export default class ShaderManager {
                 type: "t",
                 value: this.texture.main
             },
-            uTexture1Blur: {
+            uTexture2: {
                 type: "t",
                 value: this.texture.mainBlur
             },
-            // blur
-            uMainOpacity: { type: "f", value: 1.0 }
+            // image blend
+            uImageBlend: { type: "f", value: 1.0 }
         };
 
         const material = new THREE.RawShaderMaterial({
@@ -107,13 +114,41 @@ export default class ShaderManager {
     changeView() {
         this.isBlurActive = !this.isBlurActive;
 
-        // menu
         if (this.isBlurActive) {
+            // menu
             gsap.set(".js-menu", { pointerEvents: "auto" });
             gsap.to(".js-menu", 0.5, { opacity: 1, ease: "sine.out" });
         } else {
             gsap.set(".js-menu", { pointerEvents: "none" });
-            gsap.to(".js-menu", 0.5, { opacity: 0, ease: "sine.out" });
+            gsap.to(".js-menu", 0.5, {
+                opacity: 0,
+                ease: "sine.out",
+                onStart: () => {
+                    this.initMainImage();
+                    this.initSubImage();
+                }
+            });
         }
+    }
+
+    changeMenuMode(id) {
+        this.menuMode = id;
+        this.setMainImage(id);
+    }
+
+    clearMenuMode() {
+        this.menuMode = null;
+    }
+
+    setMainImage(id) {
+        this.uniforms.uTexture1.value = this.texture[id];
+    }
+
+    initMainImage() {
+        this.uniforms.uTexture1.value = this.texture.main;
+    }
+
+    initSubImage() {
+        this.uniforms.uTexture2.value = this.texture.mainBlur;
     }
 }
