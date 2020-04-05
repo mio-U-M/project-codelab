@@ -4,6 +4,7 @@ import vert from "../../shader/vertics.vert";
 import frag from "../../shader/fragment.frag";
 
 const TEXTURE_1 = `${IMG_DIR}/texture1.jpg`;
+const TEXTURE_1_BLUR = `${IMG_DIR}/texture1_blur.jpg`;
 
 export default class ShaderManager {
     constructor(canvas) {
@@ -14,6 +15,7 @@ export default class ShaderManager {
         this.camera = null;
         this.mesh = null;
 
+        this.texture = [];
         this.uniforms = null;
 
         // animation
@@ -25,12 +27,11 @@ export default class ShaderManager {
         this.resize();
 
         gsap.ticker.add(time => {
-            if (this.isBlurActive && this.uniforms.uBlurOpacity.value > 0.3) {
-                this.uniforms.uBlurOpacity.value -= 0.05;
+            if (this.isBlurActive && this.uniforms.uMainOpacity.value > 0) {
+                this.uniforms.uMainOpacity.value -= 0.05;
             }
-            if (!this.isBlurActive && this.uniforms.uBlurOpacity.value < 1.0) {
-                console.log(this.uniforms.uBlurOpacity.value);
-                this.uniforms.uBlurOpacity.value += 0.05;
+            if (!this.isBlurActive && this.uniforms.uMainOpacity.value < 1.0) {
+                this.uniforms.uMainOpacity.value += 0.05;
             }
 
             this.uniforms.uTime.value = time;
@@ -46,16 +47,26 @@ export default class ShaderManager {
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera();
         const geometry = new THREE.PlaneBufferGeometry(2, 2, 128, 128);
+
+        // texture
+        this.texture.push(new THREE.TextureLoader().load(TEXTURE_1));
+        this.texture.push(new THREE.TextureLoader().load(TEXTURE_1_BLUR));
+
         this.uniforms = {
             uResolution: { type: "v2", value: new THREE.Vector2() },
             uTime: { type: "f", value: 0 },
             uTexture1: {
                 type: "t",
-                value: new THREE.TextureLoader().load(TEXTURE_1)
+                value: this.texture[0]
+            },
+            uTexture1Blur: {
+                type: "t",
+                value: this.texture[1]
             },
             // blur
-            uBlurOpacity: { type: "f", value: 1.0 }
+            uMainOpacity: { type: "f", value: 1.0 }
         };
+
         const material = new THREE.RawShaderMaterial({
             uniforms: this.uniforms,
             fragmentShader: frag,
