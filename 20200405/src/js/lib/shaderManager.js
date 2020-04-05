@@ -6,6 +6,14 @@ import frag from "../../shader/fragment.frag";
 const TEXTURE_1 = `${IMG_DIR}/texture1.jpg`;
 const TEXTURE_1_BLUR = `${IMG_DIR}/texture1_blur.jpg`;
 
+const TETURE = {
+    main: `${IMG_DIR}/texture1.jpg`,
+    mainBlur: `${IMG_DIR}/texture1_blur.jpg`,
+    menu1: `${IMG_DIR}/menu1.jpg`,
+    menu2: `${IMG_DIR}/menu2.jpg`,
+    menu3: `${IMG_DIR}/menu3.jpg`
+};
+
 export default class ShaderManager {
     constructor(canvas) {
         this.canvas = canvas;
@@ -15,7 +23,7 @@ export default class ShaderManager {
         this.camera = null;
         this.mesh = null;
 
-        this.texture = [];
+        this.texture = {};
         this.uniforms = null;
 
         // animation
@@ -25,6 +33,8 @@ export default class ShaderManager {
     init() {
         this.setupWebgl();
         this.resize();
+
+        console.log(this.texture);
 
         gsap.ticker.add(time => {
             if (this.isBlurActive && this.uniforms.uMainOpacity.value > 0) {
@@ -49,19 +59,18 @@ export default class ShaderManager {
         const geometry = new THREE.PlaneBufferGeometry(2, 2, 128, 128);
 
         // texture
-        this.texture.push(new THREE.TextureLoader().load(TEXTURE_1));
-        this.texture.push(new THREE.TextureLoader().load(TEXTURE_1_BLUR));
+        this.createTextures();
 
         this.uniforms = {
             uResolution: { type: "v2", value: new THREE.Vector2() },
             uTime: { type: "f", value: 0 },
             uTexture1: {
                 type: "t",
-                value: this.texture[0]
+                value: this.texture.main
             },
             uTexture1Blur: {
                 type: "t",
-                value: this.texture[1]
+                value: this.texture.mainBlur
             },
             // blur
             uMainOpacity: { type: "f", value: 1.0 }
@@ -89,7 +98,22 @@ export default class ShaderManager {
         this.uniforms.uResolution.value.y = this.renderer.domElement.height;
     }
 
+    createTextures() {
+        Object.keys(TETURE).forEach(key => {
+            this.texture[key] = new THREE.TextureLoader().load(TETURE[key]);
+        });
+    }
+
     changeView() {
         this.isBlurActive = !this.isBlurActive;
+
+        // menu
+        if (this.isBlurActive) {
+            gsap.set(".js-menu", { pointerEvents: "auto" });
+            gsap.to(".js-menu", 0.5, { opacity: 1, ease: "sine.out" });
+        } else {
+            gsap.set(".js-menu", { pointerEvents: "none" });
+            gsap.to(".js-menu", 0.5, { opacity: 0, ease: "sine.out" });
+        }
     }
 }

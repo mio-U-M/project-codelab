@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap");
+
 @mixin pc-layout {
     @media (min-width: $pc_min_width + 1) {
         @content;
@@ -97,4 +99,10 @@
     outline: none;
     appearance: none;
     overflow: visible;
-  }
+}
+
+// font
+@mixin font-sanserif($font-size: 18px) {
+    font-family: "Roboto Slab", serif;
+    font-size: $font-size;
+}
