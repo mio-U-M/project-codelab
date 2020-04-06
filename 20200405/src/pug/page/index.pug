@@ -1,0 +1,20 @@
+extends /layout/_default-layout
+
+prepend config-block
+  - page_name = ''
+
+//- append stylesheet-block
+
+//- append javascript-block
+
+block content-block
+  .container
+    .canvas
+      canvas.js-view
+    .menu.js-menu
+      ul.menu-list
+        li.menu-item.js-menu-about About
+        li.menu-item.js-menu-works Works
+        li.menu-item.js-menu-contact Contact
+    .btn
+        button.js-btn Change View
