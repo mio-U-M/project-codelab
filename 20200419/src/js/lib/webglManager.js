@@ -12,7 +12,7 @@ const DIRECTIONAL_LIGHT_PARAM = {
     intensity: 1.0,
     x: 1.0,
     y: 1.0,
-    z: 1.0
+    z: 5.0
 };
 
 const COLOR_PALLETE = {
@@ -55,11 +55,11 @@ export default class WebglManager {
 
             if (this.sphereMeshList) {
                 this.sphereMeshList.forEach(mesh => {
-                    mesh.position.x += Math.cos(time) * Math.random() * 0.0008;
+                    mesh.position.x += Math.cos(time) * Math.random() * 0.001;
                     mesh.position.y +=
                         easing.easeInOutCubic(Math.sin(time * 0.1)) *
                         Math.random() *
-                        0.0008;
+                        0.001;
                 });
             }
         });
@@ -90,10 +90,10 @@ export default class WebglManager {
         this.uniforms = {
             uResolution: { type: "v2", value: new THREE.Vector2() },
             uTime: { type: "f", value: 0 },
-            uTexture: {
-                type: "t",
-                value: THREE.TextureLoader(`${IMG_DIR}/3d_graphic_texture.jpg`)
-            },
+            // uTexture: {
+            //     type: "t",
+            //     value: THREE.TextureLoader(`${IMG_DIR}/3d_graphic_texture.jpg`)
+            // },
             uColor1: {
                 type: "v3",
                 value: new THREE.Vector3(
@@ -135,14 +135,20 @@ export default class WebglManager {
 
         // マテリアルのパラメータ
         const MATERIAL_PARAM = {
-            color: 0x3399ff,
+            color: 0xffffff,
             specular: 0xffffff
         };
         const samplemesh = new THREE.MeshPhongMaterial(MATERIAL_PARAM);
 
-        this.planeMesh = new THREE.Mesh(this.planeGeometry, samplemesh);
-        this.planeMesh.position.set(0.0, 0.0, 0.0);
-        this.scene.add(this.planeMesh);
+        const textuerLoader = new THREE.TextureLoader();
+        const mat = new THREE.MeshPhongMaterial();
+
+        textuerLoader.load(`${IMG_DIR}/3d_graphic_texture.jpg`, tex => {
+            mat.map = tex;
+            this.planeMesh = new THREE.Mesh(this.planeGeometry, mat);
+            this.planeMesh.position.set(0.0, 0.0, 0.0);
+            this.scene.add(this.planeMesh);
+        });
 
         SPHERE_POS.forEach(pos => {
             const sphereMesh = new THREE.Mesh(this.sphereGeometry, samplemesh);
