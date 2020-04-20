@@ -1,6 +1,6 @@
-import ShaderManager from "./lib/shaderManager";
+import WebglManager from "./lib/webglManager";
 
 const view = document.querySelector(".js-view");
-const manager = new ShaderManager(view);
+const manager = new WebglManager(view);
 
 manager.init();

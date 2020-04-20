@@ -5,6 +5,7 @@ import textureFrag from "../../shader/texture.frag";
 import { IMG_DIR } from "../../constants.yml";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { easing } from "../lib/easing";
 
 const DIRECTIONAL_LIGHT_PARAM = {
     color: 0xffffff,
@@ -26,7 +27,7 @@ const SPHERE_POS = [
     { x: 0.7, y: -2.8, z: 4.8 }
 ];
 
-export default class ShaderManager {
+export default class WebglManager {
     constructor(canvas) {
         this.canvas = canvas;
 
@@ -40,6 +41,8 @@ export default class ShaderManager {
         this.color1 = [...this.hexToRgb(COLOR_PALLETE.vividpurple)];
         this.color2 = [...this.hexToRgb(COLOR_PALLETE.skyblue)];
         this.color3 = [...this.hexToRgb(COLOR_PALLETE.pinkred)];
+
+        this.sphereMeshList = [];
     }
 
     init() {
@@ -49,6 +52,20 @@ export default class ShaderManager {
         gsap.ticker.add(time => {
             this.uniforms.uTime.value = time;
             this.renderer.render(this.scene, this.camera);
+
+            if (this.sphereMeshList) {
+                this.sphereMeshList.forEach(mesh => {
+                    mesh.position.x += Math.cos(time) * Math.random() * 0.0008;
+                    mesh.position.y +=
+                        easing.easeInOutCubic(Math.sin(time * 0.1)) *
+                        Math.random() *
+                        0.0008;
+                });
+            }
+        });
+
+        window.addEventListener("resize", () => {
+            this.resize();
         });
     }
 
@@ -131,6 +148,7 @@ export default class ShaderManager {
             const sphereMesh = new THREE.Mesh(this.sphereGeometry, samplemesh);
             sphereMesh.position.set(pos.x, pos.y, pos.z);
             this.scene.add(sphereMesh);
+            this.sphereMeshList.push(sphereMesh);
         });
 
         this.light = new THREE.DirectionalLight(
