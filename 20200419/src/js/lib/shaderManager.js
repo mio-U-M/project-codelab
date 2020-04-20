@@ -20,6 +20,12 @@ const COLOR_PALLETE = {
     skyblue: "#197CE4"
 };
 
+const SPHERE_POS = [
+    { x: 1.7, y: 2.4, z: 6.3 },
+    { x: -2.3, y: 0.0, z: 5.3 },
+    { x: 0.7, y: -2.8, z: 4.8 }
+];
+
 export default class ShaderManager {
     constructor(canvas) {
         this.canvas = canvas;
@@ -58,11 +64,11 @@ export default class ShaderManager {
             45,
             window.innerWidth / window.innerHeight
         );
-        this.camera.position.set(0, 0, +100);
+        this.camera.position.set(0, 0, +14);
         // plane
-        this.planeGeometry = new THREE.PlaneBufferGeometry(1, 1);
+        this.planeGeometry = new THREE.PlaneBufferGeometry(10, 10);
         // spehre
-        this.sphereGeometry = new THREE.SphereGeometry(10, 32, 32);
+        this.sphereGeometry = new THREE.SphereGeometry(1.0, 32, 32);
 
         this.uniforms = {
             uResolution: { type: "v2", value: new THREE.Vector2() },
@@ -118,18 +124,14 @@ export default class ShaderManager {
         const samplemesh = new THREE.MeshPhongMaterial(MATERIAL_PARAM);
 
         this.planeMesh = new THREE.Mesh(this.planeGeometry, samplemesh);
-        this.planeMesh.position.z = -1;
-        // this.scene.add(this.planeMesh);
+        this.planeMesh.position.set(0.0, 0.0, 0.0);
+        this.scene.add(this.planeMesh);
 
-        for (let index = 0; index < 3; index++) {
+        SPHERE_POS.forEach(pos => {
             const sphereMesh = new THREE.Mesh(this.sphereGeometry, samplemesh);
-
-            sphereMesh.position.x = Math.random() * 10.0;
-            sphereMesh.position.y = Math.random() * 10.0;
-            sphereMesh.position.z = 0;
-
+            sphereMesh.position.set(pos.x, pos.y, pos.z);
             this.scene.add(sphereMesh);
-        }
+        });
 
         this.light = new THREE.DirectionalLight(
             DIRECTIONAL_LIGHT_PARAM.color,
