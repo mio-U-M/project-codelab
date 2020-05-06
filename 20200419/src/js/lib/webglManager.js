@@ -1,7 +1,6 @@
 import gsap from "gsap";
 import vert from "../../shader/vertics.vert";
 import gradientFrag from "../../shader/gradient.frag";
-import textureFrag from "../../shader/texture.frag";
 import { IMG_DIR } from "../../constants.yml";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
@@ -90,10 +89,6 @@ export default class WebglManager {
         this.uniforms = {
             uResolution: { type: "v2", value: new THREE.Vector2() },
             uTime: { type: "f", value: 0 },
-            // uTexture: {
-            //     type: "t",
-            //     value: THREE.TextureLoader(`${IMG_DIR}/3d_graphic_texture.jpg`)
-            // },
             uColor1: {
                 type: "v3",
                 value: new THREE.Vector3(
@@ -127,11 +122,6 @@ export default class WebglManager {
             fragmentShader: gradientFrag,
             vertexShader: vert
         });
-        this.textureShaderMaterial = new THREE.RawShaderMaterial({
-            uniforms: this.uniforms,
-            fragmentShader: textureFrag,
-            vertexShader: vert
-        });
 
         // マテリアルのパラメータ
         const MATERIAL_PARAM = {
@@ -141,11 +131,11 @@ export default class WebglManager {
         const samplemesh = new THREE.MeshPhongMaterial(MATERIAL_PARAM);
 
         const textuerLoader = new THREE.TextureLoader();
-        const mat = new THREE.MeshPhongMaterial();
+        this.mat = new THREE.MeshPhongMaterial();
 
         textuerLoader.load(`${IMG_DIR}/3d_graphic_texture.jpg`, tex => {
-            mat.map = tex;
-            this.planeMesh = new THREE.Mesh(this.planeGeometry, mat);
+            this.mat.map = tex;
+            this.planeMesh = new THREE.Mesh(this.planeGeometry, this.mat);
             this.planeMesh.position.set(0.0, 0.0, 0.0);
             this.scene.add(this.planeMesh);
         });
